@@ -3,9 +3,18 @@
 void main()
 {
   clrscr();
-  int gdriver=DETECT,gmode;
-  initgraph(&gdriver,&gmode,"C:\TC\BGI");
-  circle(20,15,30);
-  getch();
-  closegraph();
+  cleardevice();
+  setbkcolor(15);
+  setcolor(1);
+  settextstyle(7,0,5);
+  outtextxy(50,50, "--Main Page--");
 }
+
+ -----------------------------------
+|                                01  )
+|                                02 |
+|                                   |
+|                                03 |
+|                                04 |
+|                                05   )
+ -----------------------------------
