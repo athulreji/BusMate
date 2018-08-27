@@ -8,6 +8,14 @@ using namespace std;
 
 void clrscr(){}
 
+class Time {
+	int hour, min, sec;
+} curr_time;
+
+struct Date {
+	int day, mon, year;
+} curr_date;
+
 //Route class Defenition
 class Route {
 	char stop[20][30];
@@ -24,8 +32,9 @@ public:
 class Bus {
 	char bus_name[20];
 	int seat[10][4];
-	int route_no;
+	float price;
 public:
+	int route_no;
 	int bus_no;
 	void getNewBusNo();
 	void getRouteNo();
@@ -38,7 +47,7 @@ class Traveller {
 	int route_no;
 	int bus_no;
 	int seats_booked;
-	int seat_no[10];
+	int seat_no[6];
 	char name[30];
 	char pwd[20];
 public:
@@ -56,6 +65,9 @@ public:
 
 void Route :: showDetails() {
 	cout << route_no << "\t\t\t" << from << "\t\t\t" << to << '\n';
+
+void Route :: showFromAndTo() {
+	cout << from << '-'
 }
 
 void Route :: getDetails() {
@@ -132,10 +144,18 @@ void Bus :: getDetails() {
 	cin.getline(bus_name, 20);
 	getNewBusNo();
 	getRouteNo();
+	cout << '\t' << "Price : ";
+	cin >> price;
 }
 
 void Bus :: showDetails() {
-	cout << bus_no << "\t\t\t" << bus_name << "\t\t\t" << route_no << '\n';
+	cout << bus_no << "\t\t\t" << bus_name << "\t\t\t";
+	Route r;
+	fstream file;
+	file.open("routes.dat", ios :: in | ios :: app :: | ios :: binary);
+	while(file.read((char *) &r, sizeof(r))) {
+		if(r.route_no
+	}
 }
 
 /////////////////////////////////////////////////
@@ -184,6 +204,29 @@ int Traveller :: checkLoginDetails(char uname[20], char pass[20]) {
 //Global Functions
 ////////////////////////////////////////////////
 
+//Function to get corrent date and time
+void getDateAndTime() {
+	time_t tt;
+
+	// Declaring variable to store return value of
+	// localtime()
+	struct tm * ti;
+
+	// Applying time()
+	time (&tt);
+
+	// Using localtime()
+	ti = localtime(&tt);
+
+	curr_time.hour = ti -> tm_hour;
+	curr_time.min = ti -> tm_min;
+	curr_time.sec = ti -> tm_sec;
+
+	curr_date.day = ti -> tm_mday;
+	curr_date.mon = ti -> tm_mon+1;
+	curr_date.year = ti -> tm_year+1900;
+}
+
 //Function to add new bus
 void addNewBus() {
 	fstream file;
@@ -227,7 +270,7 @@ void showAllBusses() {
 		Bus b;
 		file.open("busses.dat", ios::app | ios :: in | ios :: binary);
 		cout << "#######################################################################" << '\n';
-		cout << "Bus no." << "\t\t\t" << "Name" << "\t\t\t" << "Route no." << '\n';
+		cout << "Bus no." << "\t\t\t" << "Name" << "\t\t\t" << "Route" << "Price" <<'\n';
 		cout << "#######################################################################" << '\n' << '\n';
 		while(file.read((char *) &b, sizeof(b))) {
 			b.showDetails();
@@ -236,8 +279,89 @@ void showAllBusses() {
 		file.close();
 }
 
-void clientPanel() {
+void showDate(Date d) {
+	cout << d.day << '/' << d.mon << '/' << d.year;
+}
 
+void showTime(Time t) {
+	cout << t.hour << '/' << t.min << '/' << t.sec;
+}
+
+void showAvailBusses(char from[30], to[30]) {
+	fstream file1, file;
+	int route_no;
+	Route r;
+	file1.open("routes.dat", ios :: app | ios :: in | ios :: binary);
+	while(read((char *) &r, sizeof(r))) {
+		if(!strcmp(r.from, from) && !strcmp(r.to, to)){
+			route_no = r.route_no;
+			break;
+		}
+	}
+	file1.close();
+	Bus b;
+	file.open("busses.dat", ios :: app | ios :: in | ios :: binary);
+	cout << "#######################################################################" << '\n';
+	cout << "Bus no." << "\t\t\t" << "Name" << "\t\t\t" << "Route" << "Price" <<'\n';
+	cout << "#######################################################################" << '\n' << '\n';
+	while(file.read((char *) &b, sizeof(b))) {
+		if(b.route_no == route_no)
+			b.showDetails();
+		cout << "-----------------------------------------------------------------------" << '\n';
+	}
+	file.close();
+}
+
+void bookTickets() {
+	char from[30], to[30];
+	Date booking_date;
+	cout << "Enter the details : " << '\n';
+	cout << '\t' << "From : ";
+	cin.ignore();
+	cin.getline(from, 30);
+	cout << '\t' << "To : ";
+	cin.getline(to, 30);
+	cout << '\t' << "Departing(From ";
+	showDate(curr_date);
+	cout << " to the next 31 days"
+	cout << ") : " << '\n';
+	cout << '\t' << " Day : ";
+	cin << booking_date.day;
+	cout << '\t' << " Month : ";
+	cin << booking_date.mon;
+	cout << '\t' << " Year : ";
+	cin << booking_date.year;
+
+	showAvailBusses(from, to);
+}
+
+void ShowAllTickets {
+
+}
+
+//Client Panel
+void clientPanel() {
+	int opt;
+	int flag = 0;
+	do {
+		cout << "Choose a correct option: " << '\n';
+		cout << '\t' << "- Book Tickets [ 1 ]" << '\n';
+		cout << '\t' << "- Show my tickets [ 2 ]" << '\n';
+		cout << '\t' << "- Exit [ 3 ]" << '\n';
+		cin>>opt;
+
+		switch(opt) {
+			case 1:
+				bookTickets();
+				break;
+			case 2:
+				ShowAllTickets();
+				break;
+			case 3:
+				flag = 1;
+				break;
+		}
+	}while(!flag);
 }
 
 //Function for traveler to signup
