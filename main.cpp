@@ -124,34 +124,69 @@ void Bus :: showDetails() {
 class traveller {
 	int route_no;
 	int bus_no;
-	int seat_no;
+	int seats_booked;
+	int seat_no[10]
 	char name[30];
+	char pwd[20]
 public:
+	char u_name[20];
 	void getRouteNo();
 	void getBusNo();
 	void getDetails();
+	void getSignUpDetails();
 };
+
+/////////////////////////////////////////////////
+//Member functions of class bus
+////////////////////////////////////////////////
+
+void Traveller :: getSignUpDetails() {
+	int flag = 0;
+	fstream file;
+	Traveller t;
+	cout << "Enter your details : " << '\n';
+	cout << '\t' << "Name : ";
+	cin.ignore();
+	cin.getline(name, 30);
+	do {
+		cout << '\t' << "Username : ";
+		cin.ignore();
+		cin.getline(u_name, 20);
+		file.seekg(0, ios :: beg)
+		file.open("travellers.dat", ios :: in | ios :: app | ios :: binary);
+		while (file.read((char *) &t, sizeof(t))) {
+			if(!strcmp(u_name, t.u_name)) {
+					flag = 1;
+					cout << "Username already exist" << endl;
+					break;
+			}
+		}
+	} while(flag);
+	cout << '\t' << "Password : ";
+	cin.getline(pwd, 20);
+	file.close();
+}
 
 //Function to add new bus
 void addNewBus() {
-	fstream bfile;
-	bfile.open("busses.dat", ios::app | ios::binary);
+	fstream file;
+	file.open("busses.dat", ios::app | ios::binary);
 	Bus b;
 	b.getDetails();
-	if(bfile.write((char *)&b, sizeof(b)))
+	if(file.write((char *)&b, sizeof(b)))
 		cout << "New bus has been successfully added." << '\n';
-	bfile.close();
+	file.close();
 }
 
 //Function to add new route
 void addNewRoute() {
-	fstream rfile;
-	rfile.open("routes.dat", ios::app | ios:: binary);
+	fstream file;
+	file.open("routes.dat", ios::app | ios:: binary);
 	Route r;
 	r.getDetails();
-	if(rfile.write((char *)&r, sizeof(r)))
+	if(file.write((char *)&r, sizeof(r)))
 		cout << "New route has been successfully added." << '\n';
-	rfile.close();
+	file.close();
 }
 
 //Function to show all bus routes
@@ -182,6 +217,39 @@ void showAllBusses() {
 			cout << "-----------------------------------------------------------------------" << '\n';
 		}
 		file.close();
+}
+
+void travellerSignUp() {
+	Traveller t;
+	fstream file;
+	file.open("travellers.dat", ios :: app | ios :: binary)
+	t.getSignUpDetails();
+	if(file.write((char *) &t, sizeof(t)))
+		cout << "Your account has been created successfully." << '\n';
+	file.close();
+}
+
+int travellerLogin() {
+	fstream file;
+	Traveller t;
+	char u_name[20];
+	char pwd[20];
+	cout << "Enter login details : " << '\n';
+	cout << '\t' << "Username : ";
+	cin.ignore();
+	cin.getline(u_name, 20);
+	cout << '\t' << "Password : ";
+	cin.getline(pwd, 20);
+	file.open("traveller.dat", ios :: in | ios :: app | ios :: binary);
+	while(file.read((char *), &t, sizeof(t))) {
+		if(strcmp(u_name, t.u_name)) {
+			cout << "Incorrect username." << '\n';
+			break;
+		}
+		if(strcmp(pwd, t.pwd)) {
+			cout << "Incorrect Password." << '\n';
+		}
+	}
 }
 
 //Admin Controls
@@ -219,7 +287,27 @@ void adminControl() {
 
 //Client Area
 void clientArea() {
+	int opt;
+	int flag = 0;
+	do {
+		cout << "Choose a correct option: " << '\n';
+		cout << '\t' << "- Login [ 1 ]" << '\n';
+		cout << '\t' << "- Create a new account [ 2 ]" << '\n';
+		cout << '\t' << "- Exit [ 3 ]" << '\n';
+		cin>>opt;
 
+		switch(opt) {
+			case 1:
+				travellerLogin();
+				break;
+			case 2:
+				travellerSignUp();
+				break;
+			case 3:
+				flag = 1;
+				break;
+		}
+	}while(!flag);
 }
 
 
