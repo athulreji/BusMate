@@ -20,6 +20,36 @@ public:
 	void showDetails();
 };
 
+//Bus class Defenition
+class Bus {
+	char bus_name[20];
+	int seat[10][4];
+	int route_no;
+public:
+	int bus_no;
+	void getNewBusNo();
+	void getRouteNo();
+	void getDetails();
+	void showDetails();
+};
+
+//Traveller class Defenition
+class Traveller {
+	int route_no;
+	int bus_no;
+	int seats_booked;
+	int seat_no[10];
+	char name[30];
+	char pwd[20];
+public:
+	char u_name[20];
+	void getRouteNo();
+	void getBusNo();
+	void getDetails();
+	void getSignUpDetails();
+	int checkLoginDetails(char *, char *);
+};
+
 /////////////////////////////////////////////////
 //Member functions of class Route
 ////////////////////////////////////////////////
@@ -53,18 +83,6 @@ void Route :: getDetails() {
 	file.close();
 }
 
-//Bus class Defenition
-class Bus {
-	char bus_name[20];
-	int seat[10][4];
-	int route_no;
-public:
-	int bus_no;
-	void getNewBusNo();
-	void getRouteNo();
-	void getDetails();
-	void showDetails();
-};
 
 /////////////////////////////////////////////////
 //Member functions of class bus
@@ -120,52 +138,51 @@ void Bus :: showDetails() {
 	cout << bus_no << "\t\t\t" << bus_name << "\t\t\t" << route_no << '\n';
 }
 
-//Traveller class Defenition
-class traveller {
-	int route_no;
-	int bus_no;
-	int seats_booked;
-	int seat_no[10]
-	char name[30];
-	char pwd[20]
-public:
-	char u_name[20];
-	void getRouteNo();
-	void getBusNo();
-	void getDetails();
-	void getSignUpDetails();
-};
-
 /////////////////////////////////////////////////
-//Member functions of class bus
+//Member functions of class Traveller
 ////////////////////////////////////////////////
 
 void Traveller :: getSignUpDetails() {
-	int flag = 0;
+	int flag;
 	fstream file;
 	Traveller t;
+	file.open("travellers.dat", ios :: in | ios :: app | ios :: binary);
 	cout << "Enter your details : " << '\n';
 	cout << '\t' << "Name : ";
 	cin.ignore();
 	cin.getline(name, 30);
 	do {
+		flag = 0;
 		cout << '\t' << "Username : ";
-		cin.ignore();
 		cin.getline(u_name, 20);
-		file.seekg(0, ios :: beg)
-		file.open("travellers.dat", ios :: in | ios :: app | ios :: binary);
+		file.seekg(0, ios :: beg);
 		while (file.read((char *) &t, sizeof(t))) {
 			if(!strcmp(u_name, t.u_name)) {
 					flag = 1;
-					cout << "Username already exist" << endl;
+					cout << "Username already exist";
 					break;
 			}
 		}
 	} while(flag);
+	if(flag)
+		cout << '\n';
 	cout << '\t' << "Password : ";
 	cin.getline(pwd, 20);
 	file.close();
 }
+
+int Traveller :: checkLoginDetails(char uname[20], char pass[20]) {
+	if(!strcmp(uname, u_name) && !strcmp(pass, pwd))
+		return 1;
+	else if(!strcmp(uname, u_name))
+		return 3;
+	else if(strcmp)
+		return 0;
+}
+
+/////////////////////////////////////////////////
+//Global Functions
+////////////////////////////////////////////////
 
 //Function to add new bus
 void addNewBus() {
@@ -219,37 +236,51 @@ void showAllBusses() {
 		file.close();
 }
 
+void clientPanel() {
+
+}
+
+//Function for traveler to signup
 void travellerSignUp() {
 	Traveller t;
 	fstream file;
-	file.open("travellers.dat", ios :: app | ios :: binary)
+	file.open("travellers.dat", ios :: app | ios :: binary);
 	t.getSignUpDetails();
 	if(file.write((char *) &t, sizeof(t)))
 		cout << "Your account has been created successfully." << '\n';
 	file.close();
 }
 
+//Function for traveller to login
 int travellerLogin() {
 	fstream file;
 	Traveller t;
-	char u_name[20];
-	char pwd[20];
+	int temp, flag = 0;
+	char u_name[20], pwd[20];
 	cout << "Enter login details : " << '\n';
 	cout << '\t' << "Username : ";
 	cin.ignore();
 	cin.getline(u_name, 20);
 	cout << '\t' << "Password : ";
 	cin.getline(pwd, 20);
-	file.open("traveller.dat", ios :: in | ios :: app | ios :: binary);
-	while(file.read((char *), &t, sizeof(t))) {
-		if(strcmp(u_name, t.u_name)) {
-			cout << "Incorrect username." << '\n';
+	file.open("travellers.dat", ios :: in | ios :: app | ios :: binary);
+	while(file.read((char *) &t, sizeof(t))) {
+		temp = t.checkLoginDetails(u_name, pwd);
+		if(temp == 1) {
+			cout << "You have logged in successfully." << '\n';
+			flag = 1;
+			clientPanel();
 			break;
 		}
-		if(strcmp(pwd, t.pwd)) {
+		else if(temp == 3){
 			cout << "Incorrect Password." << '\n';
+			flag = 1;
+			break;
 		}
 	}
+	if(!flag)
+		cout << "Username does not exist." << '\n';
+	file.close();
 }
 
 //Admin Controls
