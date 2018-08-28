@@ -8,7 +8,7 @@ using namespace std;
 
 void clrscr(){}
 
-class Time {
+struct Time {
 	int hour, min, sec;
 } curr_time;
 
@@ -16,9 +16,38 @@ struct Date {
 	int day, mon, year;
 } curr_date;
 
+Time getTime() {
+	Time t;
+	cout << '\t' << "Hour : ";
+	cin >> t.hour;
+	cout << '\t' << "Minute : ";
+	cin >> t.min;
+	cout << '\t' << "Second : ";
+	cin >> t.sec;
+	return t;
+}
+
+Date getDate() {
+	Date d ;
+	cout << '\t' << "Day : ";
+	cin >> d.day;
+	cout << '\t' << "Month : ";
+	cin >> d.mon;
+	cout << '\t' << "Year : ";
+	cin >> d.year;
+	return d;
+}
+
+void showDate(Date d) {
+	cout << d.day << '/' << d.mon << '/' << d.year;
+}
+
+void showTime(Time t) {
+	cout << t.hour << ':' << t.min << ':' << t.sec;
+}
+
 //Route class Defenition
 class Route {
-	char stop[20][30];
 public:
 	int route_no;
 	char from[30];
@@ -26,12 +55,15 @@ public:
 	void getDetails();
 	void getRouteNo();
 	void showDetails();
+	void showFromAndTo();
 };
 
 //Bus class Defenition
 class Bus {
 	char bus_name[20];
 	int seat[10][4];
+	Time departure;
+	Time arrival;
 	float price;
 public:
 	int route_no;
@@ -40,11 +72,12 @@ public:
 	void getRouteNo();
 	void getDetails();
 	void showDetails();
+	void showName();
+
 };
 
 //Traveller class Defenition
 class Traveller {
-	int route_no;
 	int bus_no;
 	int seats_booked;
 	int seat_no[6];
@@ -65,9 +98,10 @@ public:
 
 void Route :: showDetails() {
 	cout << route_no << "\t\t\t" << from << "\t\t\t" << to << '\n';
+}
 
-void Route :: showFromAndTo() {
-	cout << from << '-'
+void showFromAndTo() {
+	cout << from << " - " << to;
 }
 
 void Route :: getDetails() {
@@ -149,13 +183,19 @@ void Bus :: getDetails() {
 }
 
 void Bus :: showDetails() {
-	cout << bus_no << "\t\t\t" << bus_name << "\t\t\t";
+	cout << bus_no << "\t\t" << bus_name << "\t\t";
 	Route r;
 	fstream file;
 	file.open("routes.dat", ios :: in | ios :: app :: | ios :: binary);
 	while(file.read((char *) &r, sizeof(r))) {
-		if(r.route_no
+		if(route_no == r.route_no)
+			r.showFromAndTo();
 	}
+	file.close();
+}
+
+void shwName() {
+	cout << bus_name;
 }
 
 /////////////////////////////////////////////////
@@ -205,7 +245,7 @@ int Traveller :: checkLoginDetails(char uname[20], char pass[20]) {
 ////////////////////////////////////////////////
 
 //Function to get corrent date and time
-void getDateAndTime() {
+void getCurrentDateAndTime() {
 	time_t tt;
 
 	// Declaring variable to store return value of
@@ -279,14 +319,6 @@ void showAllBusses() {
 		file.close();
 }
 
-void showDate(Date d) {
-	cout << d.day << '/' << d.mon << '/' << d.year;
-}
-
-void showTime(Time t) {
-	cout << t.hour << '/' << t.min << '/' << t.sec;
-}
-
 void showAvailBusses(char from[30], to[30]) {
 	fstream file1, file;
 	int route_no;
@@ -314,6 +346,7 @@ void showAvailBusses(char from[30], to[30]) {
 
 void bookTickets() {
 	char from[30], to[30];
+	int bus_no
 	Date booking_date;
 	cout << "Enter the details : " << '\n';
 	cout << '\t' << "From : ";
@@ -325,14 +358,10 @@ void bookTickets() {
 	showDate(curr_date);
 	cout << " to the next 31 days"
 	cout << ") : " << '\n';
-	cout << '\t' << " Day : ";
-	cin << booking_date.day;
-	cout << '\t' << " Month : ";
-	cin << booking_date.mon;
-	cout << '\t' << " Year : ";
-	cin << booking_date.year;
-
+	booking_date = getDate();
 	showAvailBusses(from, to);
+	cout << "Choose a bus no : ";
+	cin >> bus_no;
 }
 
 void ShowAllTickets {
