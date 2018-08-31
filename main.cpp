@@ -69,6 +69,10 @@ void showTime(Time t) {
 	cout << t.hour << ':' << t.min << ':' << t.sec;
 }
 
+/////////////////////////////////////////////////
+//Classes
+////////////////////////////////////////////////
+
 //Route class Defenition
 class Route {
 public:
@@ -83,7 +87,7 @@ public:
 //Bus class Defenition
 class Bus {
 	char bus_name[20];
-	int seat[10][4];
+	int seat[40];
 	Time departure;
 	Time arrival;
 	float price;
@@ -97,168 +101,26 @@ public:
 	void getDetails();
 	void showDetails();
 	void showAvailSeats();
-
+	int bookSeats(int, int []);
 };
 
-//Traveller class Defenition
-class Traveller {
-	int bus_no;
+//User class Defenition
+class User {
 	int seats_booked;
-	int seat_no[6];
+	int seat_nos[6];
 	char name[30];
 	char pwd[20];
+	int bus_no;
 public:
 	char u_name[20];
 	void getRouteDetails();
-	void getBusNo();
 	void getDetails();
 	void getSignUpDetails();
 	int checkLoginDetails(char *, char *);
+	void clientPanel();
+	void bookTickets();
+	void showTicket();
 };
-
-/////////////////////////////////////////////////
-//Member functions of class Route
-////////////////////////////////////////////////
-
-void Route :: showDetails() {
-	cout << route_no << "\t\t\t" << from << "\t\t\t" << to << '\n';
-}
-
-
-void Route :: getDetails() {
-	fstream file;
-	Route r;
-	int flag;
-	file.open("routes.dat", ios :: app | ios :: in | ios :: binary);
-	int no;
-	do {
-		no = 100;
-		flag = 0;
-		cout << "Enter the details of the route : " << '\n';
-	 	cout << '\t' << "From : ";
-		cin.ignore();
-		cin.getline(from, 30);
-		cout << '\t' << "To: ";
-		cin.getline(to, 30);
-		while(file.read((char *) &r, sizeof(r))){
-			no+=1;
-			if(!strcmp(r.from, from) && !strcmp(r.to, to))
-				flag = 1;
-		}
-	} while(flag);
-	route_no = no;
-	file.close();
-}
-
-
-/////////////////////////////////////////////////
-//Member functions of class bus
-////////////////////////////////////////////////
-
-void Bus :: getNewBusNo() {
-	int no = 1000;
-	fstream file;
-	file.open("busses.dat",ios::app | ios :: binary);
-	file.seekg(0, ios :: end);
-	no+= (file.tellg() / sizeof(Bus));
-	bus_no = no;
-	file.close();
-}
-
-void Bus :: getRouteDetails() {
-	fstream file;
-	char temp_from[30];
-	char temp_to[30];
-	int flag = 0;
-	Route r;
-	file.open("routes.dat",ios :: app | ios :: in | ios :: binary);
-	do {
-		cout << "Enter the route details : " << '\n';
-		cout << '\t' << "From : ";
-		cin.sync();
-		cin.getline(temp_from, 30);
-		cout << '\t' << "To : ";
-		cin.getline(temp_to, 30);
-		file.seekg(0, ios :: beg);
-		while(file.read((char *) &r, sizeof(r))) {
-			if(!strcmp(r.from, from) && !strcmp(r.to, to)){
-				route_no = r.route_no;
-				strcpy(from, r.from);
-				strcpy(to, r.to);
-				flag = 1;
-				break;
-			}
-		}
-	} while(!flag);
-	file.close();
-}
-
-void Bus :: getDetails() {
-	cout << "Enter the details of the bus :" << '\n';
-	cout << '\t' << "Name : ";
-	cin.ignore();
-	cin.getline(bus_name, 20);
-	getNewBusNo();
-	getRouteDetails();
-	departure = getTime();
-	arrival = getTime();
-	cout << '\t' << "Price : ";
-	cin >> price;
-}
-
-void Bus :: showDetails() {
-	cout << bus_no << "\t" << route_no << "\t" << bus_name << "\t"; showTime(departure);
-	cout << "\t\t";
-	showTime(arrival);
-	cout << "\t" << price;
-}
-
-void Bus :: showAvailSeats() {
-	cout << "\t\t\t" << "--------------------------------------------------------------------";
-}
-
-
-/////////////////////////////////////////////////
-//Member functions of class Traveller
-////////////////////////////////////////////////
-
-void Traveller :: getSignUpDetails() {
-	int flag;
-	fstream file;
-	Traveller t;
-	file.open("travellers.dat", ios :: in | ios :: app | ios :: binary);
-	cout << "Enter your details : " << '\n';
-	cout << '\t' << "Name : ";
-	cin.ignore();
-	cin.getline(name, 30);
-	do {
-		flag = 0;
-		cout << '\t' << "Username : ";
-		cin.getline(u_name, 20);
-		file.seekg(0, ios :: beg);
-		while (file.read((char *) &t, sizeof(t))) {
-			if(!strcmp(u_name, t.u_name)) {
-					flag = 1;
-					cout << "Username already exist";
-					break;
-			}
-		}
-	} while(flag);
-	if(flag)
-		cout << '\n';
-	cout << '\t' << "Password : ";
-	cin.getline(pwd, 20);
-	file.close();
-}
-
-int Traveller :: checkLoginDetails(char uname[20], char pass[20]) {
-	if(!strcmp(uname, u_name) && !strcmp(pass, pwd))
-		return 1;
-	else if(!strcmp(uname, u_name))
-		return 3;
-	else if(strcmp)
-		return 0;
-}
 
 /////////////////////////////////////////////////
 //Global Functions
@@ -308,11 +170,11 @@ void showAllBusses() {
 		Bus b;
 		file.open("busses.dat", ios::app | ios :: in | ios :: binary);
 		cout << "###################################################################################" << '\n';
-		cout << "Bus no." << "\t" << "Route no." << "\t" << "Name" << "\t" << "Departure" << "\t" << "Arrival" << "" << "Price" <<'\n';
+		cout << "Bus no." << "\t" << "Route no." << "\t" << "Name" << "\t\t" << "Departure" << "\t" << "Arrival" << "\t\t" << "Price" <<'\n';
 		cout << "###################################################################################" << '\n' << '\n';
 		while(file.read((char *) &b, sizeof(b))) {
 			b.showDetails();
-			cout << "-----------------------------------------------------------------------" << '\n';
+			cout << "\n----------------------------------------------------------------------------------" << '\n';
 		}
 		file.close();
 }
@@ -332,92 +194,31 @@ void showAvailBusses(char from[30], char to[30]) {
 	Bus b;
 	file.open("busses.dat", ios :: app | ios :: in | ios :: binary);
 	cout << "###################################################################################" << '\n';
-	cout << "Bus no." << "\t" << "Route no." << "\t" << "Name" << "\t" << "Departure" << "\t" << "Arrival" << "" << "Price" <<'\n';
+	cout << "Bus no." << "\t" << "Route no." << "\t" << "Name" << "\t\t" << "Departure" << "\t" << "Arrival" << "\t\t" << "Price" <<'\n';
 	cout << "###################################################################################" << '\n' << '\n';
 	while(file.read((char *) &b, sizeof(b))) {
 		if(b.route_no == route_no)
 			b.showDetails();
-		cout << "-----------------------------------------------------------------------" << '\n';
+		cout << "\n---------------------------------------------------------------------------------" << '\n';
 	}
 	file.close();
 }
 
-void bookTickets() {
-	char from[30], to[30];
-	Bus b;
-	int bus_no, flag;
-	Date booking_date;
-	cout << "Enter the details : " << '\n';
-	cout << '\t' << "From : ";
-	cin.ignore();
-	cin.getline(from, 30);
-	cout << '\t' << "To : ";
-	cin.getline(to, 30);
-	cout << '\t' << "Departing(From ";
-	showDate(curr_date);
-	cout << " to the next 31 days";
-	cout << ") : " << '\n';
-	booking_date = getDate();
-	showAvailBusses(from, to);
-	fstream file;
-	file.open("busses.dat", ios :: in | ios :: binary);
-	do {
-		flag = 1;
-		cout << "Choose a valid Bus no : ";
-		cin >> bus_no;
-		file.seekg(0, ios :: beg);
-		while (file.read((char *) &b, sizeof(b))) {
-			if(!strcmp(from, b.from) && !strcmp(to, b.to) && bus_no == b.bus_no) {
-					flag = 0;
-					cout << "Invalid bus no." << '\n';
-					break;
-			}
-		}
-	} while(flag);
-	b.showAvailSeats();
-}
-
-void ShowAllTickets() {
-
-}
-
-//Client Panel
-void clientPanel() {
-	int opt;
-	int flag = 0;
-	do {
-		cout << "Choose a correct option: " << '\n';
-		cout << '\t' << "- Book Tickets [ 1 ]" << '\n';
-		cout << '\t' << "- Show my tickets [ 2 ]" << '\n';
-		cout << '\t' << "- Exit [ 3 ]" << '\n';
-		cin>>opt;
-
-		switch(opt) {
-			case 1:	bookTickets();
-							break;
-			case 2:	ShowAllTickets();
-							break;
-			case 3:	flag = 1;
-							break;
-		}
-	}while(!flag);
-}
-
 //Function for traveler to signup
-void travellerSignUp() {
-	Traveller t;
+void UserSignUp() {
+	User u;
 	fstream file;
-	file.open("travellers.dat", ios :: app | ios :: binary);
-	t.getSignUpDetails();
-	if(file.write((char *) &t, sizeof(t)))
+	file.open("Users.dat", ios :: app | ios :: binary);
+	u.getSignUpDetails();
+	if(file.write((char *) &u, sizeof(u)))
 		cout << "Your account has been created successfully." << '\n';
 	file.close();
 }
 
-//Function for traveller to login
-int travellerLogin() {
+//Function for User to login
+ void UserLogin() {
 	fstream file;
-	Traveller t;
+	User u;
 	int temp, flag = 0;
 	char u_name[20], pwd[20];
 	cout << "Enter login details : " << '\n';
@@ -426,13 +227,15 @@ int travellerLogin() {
 	cin.getline(u_name, 20);
 	cout << '\t' << "Password : ";
 	cin.getline(pwd, 20);
-	file.open("travellers.dat", ios :: in | ios :: app | ios :: binary);
-	while(file.read((char *) &t, sizeof(t))) {
-		temp = t.checkLoginDetails(u_name, pwd);
+	file.open("Users.dat", ios :: in | ios :: app | ios :: binary);
+	while(file.read((char *) &u, sizeof(u))) {
+		temp = u.checkLoginDetails(u_name, pwd);
 		if(temp == 1) {
 			cout << "You have logged in successfully." << '\n';
+			u.clientPanel();
+			file.seekg(-1 * sizeof(u), ios :: cur);
+			file.write((char *) &u, sizeof(u));
 			flag = 1;
-			clientPanel();
 			break;
 		}
 		else if(temp == 3){
@@ -486,15 +289,264 @@ void clientArea() {
 		cin>>opt;
 
 		switch(opt) {
-			case 1:	travellerLogin();
+			case 1:	UserLogin();
 							break;
-			case 2:	travellerSignUp();
+			case 2:	UserSignUp();
 							break;
 			case 3:	flag = 1;
 							break;
 		}
 	}while(!flag);
 }
+
+
+/////////////////////////////////////////////////
+//Member functions of class Route
+////////////////////////////////////////////////
+
+void Route :: showDetails() {
+	cout << route_no << "\t\t\t" << from << "\t\t\t" << to << '\n';
+}
+
+
+void Route :: getDetails() {
+	fstream file;
+	Route r;
+	int flag;
+	file.open("routes.dat", ios :: app | ios :: in | ios :: binary);
+	int no;
+	do {
+		no = 100;
+		flag = 0;
+		cout << "Enter the details of the route : " << '\n';
+	 	cout << '\t' << "From : ";
+		cin.ignore();
+		cin.getline(from, 30);
+		cout << '\t' << "To: ";
+		cin.getline(to, 30);
+		while(file.read((char *) &r, sizeof(r))){
+			no+=1;
+			if(!strcmp(r.from, from) && !strcmp(r.to, to))
+				flag = 1;
+		}
+	} while(flag);
+	route_no = no;
+	file.close();
+}
+
+
+/////////////////////////////////////////////////
+//Member functions of class bus
+////////////////////////////////////////////////
+
+void Bus :: getNewBusNo() {
+	int no = 1000;
+	fstream file;
+	file.open("busses.dat",ios::app | ios :: binary);
+	file.seekg(0, ios :: end);
+	no+= (file.tellg() / sizeof(Bus));
+	bus_no = no;
+	file.close();
+}
+
+void Bus :: getRouteDetails() {
+	fstream file;
+	int flag;
+	char temp_from[30];
+	char temp_to[30];
+	Route r;
+	file.open("routes.dat",ios :: app | ios :: in | ios :: binary);
+	do {
+		flag = 0;
+		cout << "Enter the route details : " << '\n';
+		cout << '\t' << "From : ";
+		cin.sync();
+		cin.getline(temp_from, 30);
+		cout << '\t' << "To : ";
+		cin.getline(temp_to, 30);
+		cout << temp_from << " " <<temp_to;
+		file.seekg(0, ios :: beg);
+		while(file.read((char *) &r, sizeof(r))) {
+			if(!strcmp(r.from, temp_from) && !strcmp(r.to, temp_to)){
+				route_no = r.route_no;
+				strcpy(from, r.from);
+				strcpy(to, r.to);
+				flag = 1;
+				break;
+			}
+		}
+	} while(!flag);
+	file.close();
+}
+
+void Bus :: getDetails() {
+	cout << "Enter the details of the bus :" << '\n';
+	cout << '\t' << "Name : ";
+	cin.ignore();
+	cin.getline(bus_name, 20);
+	getNewBusNo();
+	getRouteDetails();
+	cout << "Departure : " << '\n';
+	departure = getTime();
+	cout << "Arrival : " << '\n';
+	arrival = getTime();
+	cout << '\t' << "Price : ";
+	cin >> price;
+}
+
+int Bus :: bookSeats(int n, int sts[6]){
+
+}
+
+void Bus :: showDetails() {
+	cout << bus_no << "\t" << route_no << "\t\t" << bus_name << "\t\t"; showTime(departure);
+	cout << "\t\t";
+	showTime(arrival);
+	cout << "\t\t" << price;
+}
+
+void Bus :: showAvailSeats() {
+	int temp=0;
+	cout << "\t\t\t" << "  --------------------------------------------------------------------" << '\n';
+	for(int i=1; i<=6; i++) {
+		cout << "\t\t\t";
+		if(i==2 || i==5)
+			cout << '[';
+		else
+			cout << ' ';
+		cout << '|';
+		if(i!=3)
+			for(int j=1; j<=8; j++) {
+				temp ++;
+				cout << '\t';
+				(seat[temp-1]==0)? cout << temp : cout << "❌";
+			}
+		cout << '\t' << '|';
+		if(i==2 || i==5)
+			cout << ')';
+		cout << '\n';
+	}
+	cout << "\t\t\t" << "  --------------------------------------------------------------------";
+}
+
+
+/////////////////////////////////////////////////
+//Member functions of class User
+////////////////////////////////////////////////
+
+void User :: getSignUpDetails() {
+	int flag;
+	fstream file;
+	User u;
+	file.open("Users.dat", ios :: in | ios :: app | ios :: binary);
+	cout << "Enter your details : " << '\n';
+	cout << '\t' << "Name : ";
+	cin.ignore();
+	cin.getline(name, 30);
+	do {
+		flag = 0;
+		cout << '\t' << "Username : ";
+		cin.getline(u_name, 20);
+		file.seekg(0, ios :: beg);
+		while (file.read((char *) &u, sizeof(u))) {
+			if(!strcmp(u_name, u.u_name)) {
+					flag = 1;
+					cout << "Username already exist";
+					break;
+			}
+		}
+	} while(flag);
+	if(flag)
+		cout << '\n';
+	cout << '\t' << "Password : ";
+	cin.getline(pwd, 20);
+	file.close();
+}
+
+int User :: checkLoginDetails(char uname[20], char pass[20]) {
+	if(!strcmp(uname, u_name) && !strcmp(pass, pwd))
+		return 1;
+	else if(!strcmp(uname, u_name))
+		return 3;
+	else if(strcmp)
+		return 0;
+}
+
+void User :: showTicket() {
+
+}
+
+void User :: bookTickets() {
+	char from[30], to[30];
+	Bus b;
+	int bus_no, flag;
+	Date booking_date;
+	cout << "Enter the details : " << '\n';
+	cout << '\t' << "From : ";
+	cin.ignore();
+	cin.getline(from, 30);
+	cout << '\t' << "To : ";
+	cin.getline(to, 30);
+	cout << '\t' << "Departing(From ";
+	showDate(curr_date);
+	cout << " to the next 31 days";
+	cout << ") : " << '\n';
+	booking_date = getDate();
+	showAvailBusses(from, to);
+	fstream file;
+	file.open("busses.dat", ios :: in | ios :: binary);
+	do {
+		flag = 1;
+		cout << "Choose a valid Bus no (0 - exit) : ";
+		cin >> bus_no;
+		if(bus_no == 0)
+			break;
+		file.seekg(0, ios :: beg);
+		while (file.read((char *) &b, sizeof(b))) {
+			if(!strcmp(from, b.from) && !strcmp(to, b.to) && bus_no == b.bus_no) {
+					int no_of_seats, t_seats[6], conf_booking;
+					b.showAvailSeats();
+					cout << "Enter the no of seats to buy : ";
+					cin >> no_of_seats;
+					cout << "Enter seat no and press Enter..." << '\n';
+					for(int i=0; i<no_of_seats; i++)
+						cin >> t_seats[i];
+					conf_booking = b.bookSeats(no_of_seats, t_seats);
+					if(conf_booking){
+						seats_booked = no_of_seats;
+						for(int i=0; i<no_of_seats; i++)
+							seat_nos[i] = t_seats[i];
+					}
+					flag = 0;
+					break;
+			}
+			cout << "Invalid bus no." << '\n';
+		}
+	} while(flag);
+}
+
+//Client Panel
+void User :: clientPanel() {
+	int opt;
+	int flag = 0;
+	do {
+		cout << "Choose a correct option: " << '\n';
+		cout << '\t' << "- Book Tickets [ 1 ]" << '\n';
+		cout << '\t' << "- Show my tickets [ 2 ]" << '\n';
+		cout << '\t' << "- Exit [ 3 ]" << '\n';
+		cin>>opt;
+
+		switch(opt) {
+			case 1:	bookTickets();
+							break;
+			case 2:	showTicket();
+							break;
+			case 3:	flag = 1;
+							break;
+		}
+	}while(!flag);
+}
+
 
 
 int main() {
