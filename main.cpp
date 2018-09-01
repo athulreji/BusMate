@@ -96,6 +96,7 @@ public:
 	char to[30];
 	int route_no;
 	int bus_no;
+	Bus();
 	void getNewBusNo();
 	void getRouteDetails();
 	void getDetails();
@@ -108,6 +109,8 @@ public:
 class User {
 	int seats_booked;
 	int seat_nos[6];
+	char from[30];
+	char to[30];
 	char name[30];
 	char pwd[20];
 	int bus_no;
@@ -180,24 +183,14 @@ void showAllBusses() {
 }
 
 void showAvailBusses(char from[30], char to[30]) {
-	fstream file1, file;
-	int route_no;
-	Route r;
-	file1.open("routes.dat", ios :: app | ios :: in | ios :: binary);
-	while(file.read((char *) &r, sizeof(r))) {
-		if(!strcmp(r.from, from) && !strcmp(r.to, to)){
-			route_no = r.route_no;
-			break;
-		}
-	}
-	file1.close();
+	fstream file;
 	Bus b;
 	file.open("busses.dat", ios :: app | ios :: in | ios :: binary);
 	cout << "###################################################################################" << '\n';
 	cout << "Bus no." << "\t" << "Route no." << "\t" << "Name" << "\t\t" << "Departure" << "\t" << "Arrival" << "\t\t" << "Price" <<'\n';
 	cout << "###################################################################################" << '\n' << '\n';
 	while(file.read((char *) &b, sizeof(b))) {
-		if(b.route_no == route_no)
+		if(!strcmp(from, b.from) && !strcmp(to, b.to))
 			b.showDetails();
 		cout << "\n---------------------------------------------------------------------------------" << '\n';
 	}
@@ -339,6 +332,11 @@ void Route :: getDetails() {
 //Member functions of class bus
 ////////////////////////////////////////////////
 
+Bus :: Bus() {
+	for(int i=0; i<40; i++)
+		seat[i] = 0;
+}
+
 void Bus :: getNewBusNo() {
 	int no = 1000;
 	fstream file;
@@ -364,7 +362,6 @@ void Bus :: getRouteDetails() {
 		cin.getline(temp_from, 30);
 		cout << '\t' << "To : ";
 		cin.getline(temp_to, 30);
-		cout << temp_from << " " <<temp_to;
 		file.seekg(0, ios :: beg);
 		while(file.read((char *) &r, sizeof(r))) {
 			if(!strcmp(r.from, temp_from) && !strcmp(r.to, temp_to)){
@@ -395,7 +392,20 @@ void Bus :: getDetails() {
 }
 
 int Bus :: bookSeats(int n, int sts[6]){
-
+	int flag = 1;
+	for(int i=0; i<n; i++){
+		if(seat[sts[i]] == 1) {
+			cout << "Seat " << sts[i] << "is already booked" << '\n';
+			flag = 0;
+		}
+	}
+	if(!flag)
+		return 0;
+	else {
+		for(int i=0; i<n; i++)
+			seat[sts[i]] == 1;
+		return 1;
+	}
 }
 
 void Bus :: showDetails() {
@@ -407,26 +417,30 @@ void Bus :: showDetails() {
 
 void Bus :: showAvailSeats() {
 	int temp=0;
-	cout << "\t\t\t" << "  --------------------------------------------------------------------" << '\n';
+	cout << "\t\t\t" << "  ----------------------------------------------" << '\n';
 	for(int i=1; i<=6; i++) {
 		cout << "\t\t\t";
 		if(i==2 || i==5)
-			cout << '[';
+			cout << '(';
 		else
 			cout << ' ';
-		cout << '|';
+		cout << '|' << '\t';
 		if(i!=3)
 			for(int j=1; j<=8; j++) {
 				temp ++;
-				cout << '\t';
+				cout << "  |";
+				if(temp<10)
+					cout << 0;
 				(seat[temp-1]==0)? cout << temp : cout << "❌";
 			}
-		cout << '\t' << '|';
+		else
+			cout << '\n';
+		cout << '|';
 		if(i==2 || i==5)
-			cout << ')';
+			cout << ']';
 		cout << '\n';
 	}
-	cout << "\t\t\t" << "  --------------------------------------------------------------------";
+	cout << "\t\t\t" << "  ----------------------------------------------";
 }
 
 
@@ -477,24 +491,24 @@ void User :: showTicket() {
 }
 
 void User :: bookTickets() {
-	char from[30], to[30];
+	char t_from[30], t_to[30];
 	Bus b;
 	int bus_no, flag;
 	Date booking_date;
 	cout << "Enter the details : " << '\n';
 	cout << '\t' << "From : ";
 	cin.ignore();
-	cin.getline(from, 30);
+	cin.getline(t_from, 30);
 	cout << '\t' << "To : ";
-	cin.getline(to, 30);
+	cin.getline(t_to, 30);
 	cout << '\t' << "Departing(From ";
 	showDate(curr_date);
 	cout << " to the next 31 days";
 	cout << ") : " << '\n';
 	booking_date = getDate();
-	showAvailBusses(from, to);
+	showAvailBusses(t_from, t_to);
 	fstream file;
-	file.open("busses.dat", ios :: in | ios :: binary);
+	file.open("busses.dat", ios :: in| ios:: app | ios :: binary);
 	do {
 		flag = 1;
 		cout << "Choose a valid Bus no (0 - exit) : ";
@@ -503,9 +517,10 @@ void User :: bookTickets() {
 			break;
 		file.seekg(0, ios :: beg);
 		while (file.read((char *) &b, sizeof(b))) {
-			if(!strcmp(from, b.from) && !strcmp(to, b.to) && bus_no == b.bus_no) {
+			if(!strcmp(t_from, b.from) && !strcmp(t_to, b.to) && bus_no == b.bus_no) {
 					int no_of_seats, t_seats[6], conf_booking;
 					b.showAvailSeats();
+					cout << '\n';
 					cout << "Enter the no of seats to buy : ";
 					cin >> no_of_seats;
 					cout << "Enter seat no and press Enter..." << '\n';
@@ -513,7 +528,12 @@ void User :: bookTickets() {
 						cin >> t_seats[i];
 					conf_booking = b.bookSeats(no_of_seats, t_seats);
 					if(conf_booking){
+						cout << "Booking successful" << '\n';
+						file.seekp(-1 * sizeof(b), ios :: cur);
+						file.write((char *) &b, sizeof(b));
 						seats_booked = no_of_seats;
+						strcpy(from, t_from);
+						strcpy(to, t_to);
 						for(int i=0; i<no_of_seats; i++)
 							seat_nos[i] = t_seats[i];
 					}
