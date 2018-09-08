@@ -1,23 +1,27 @@
 #include <iostream>
 #include <fstream>
-//#include <conio.h>
 #include <time.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 using namespace std;
 
+#ifdef linux
+#define clear system("clear")
+#endif
+
+#ifdef _WIN32
+#define clear system("cls")
+#endif
+
 void clrscr(){}
 
 struct Time {
-	int hour, min, sec;
+	int hour, min;
 } curr_time;
 
-struct Date {
-	int day, mon, year;
-} curr_date;
-
 //Function to get corrent date and time
-void getCurrentDateAndTime() {
+void getCurrentTime() {
 	time_t tt;
 
 	// Declaring variable to store return value of
@@ -32,11 +36,7 @@ void getCurrentDateAndTime() {
 
 	curr_time.hour = ti -> tm_hour;
 	curr_time.min = ti -> tm_min;
-	curr_time.sec = ti -> tm_sec;
 
-	curr_date.day = ti -> tm_mday;
-	curr_date.mon = ti -> tm_mon+1;
-	curr_date.year = ti -> tm_year+1900;
 }
 
 Time getTime() {
@@ -45,28 +45,11 @@ Time getTime() {
 	cin >> t.hour;
 	cout << '\t' << "Minute : ";
 	cin >> t.min;
-	cout << '\t' << "Second : ";
-	cin >> t.sec;
 	return t;
 }
 
-Date getDate() {
-	Date d ;
-	cout << '\t' << "Day : ";
-	cin >> d.day;
-	cout << '\t' << "Month : ";
-	cin >> d.mon;
-	cout << '\t' << "Year : ";
-	cin >> d.year;
-	return d;
-}
-
-void showDate(Date d) {
-	cout << d.day << '/' << d.mon << '/' << d.year;
-}
-
 void showTime(Time t) {
-	cout << t.hour << ':' << t.min << ':' << t.sec;
+	cout << t.hour << ':' << t.min << ':' << "00";
 }
 
 /////////////////////////////////////////////////
@@ -138,7 +121,7 @@ public:
 
 //Function to refresh the window
 void refreshScrn() {
-	clrscr();
+	clear;
 	cout << "##################################################################################" << endl;
 	cout << "##############################  BUS BOOKER [v 0.1] ###############################" << endl;
 	cout << "##################################################################################" << endl << endl;
@@ -171,12 +154,12 @@ void showAllRoutes() {
 		fstream file;
 		Route r;
 		file.open("routes.dat", ios::app | ios :: in | ios :: binary);
-		cout << "#######################################################################" << '\n';
-		cout << "Route no." << "\t\t" << "From" << "\t\t\t" << "To" << '\n';
-		cout << "#######################################################################" << '\n' << '\n';
+		cout << "##################################################################################" << '\n';
+		cout << " Route no." << "\t\t" << "From" << "\t\t\t" << "To" << '\n';
+		cout << "##################################################################################" << '\n' << '\n';
 		while(file.read((char *) &r, sizeof(r))) {
 			r.showDetails();
-			cout << "-----------------------------------------------------------------------" << '\n';
+			cout << "---------------------------------------------------------------------------------" << '\n';
 		}
 		file.close();
 }
@@ -186,12 +169,12 @@ void showAllBusses() {
 		fstream file;
 		Bus b;
 		file.open("busses.dat", ios::app | ios :: in | ios :: binary);
-		cout << "###################################################################################" << '\n';
-		cout << "Bus no." << "\t" << "Route no." << "\t" << "Name" << "\t\t" << "Departure" << "\t" << "Arrival" << "\t\t" << "Price" <<'\n';
-		cout << "###################################################################################" << '\n' << '\n';
+		cout << "##################################################################################" << '\n';
+		cout << " Bus no." << "   " << "Route no." << "\t" << "Name" << "\t\t" << "Departure" << "\t" << "Arrival" << "\t\t" << "Price" <<'\n';
+		cout << "##################################################################################" << '\n' << '\n';
 		while(file.read((char *) &b, sizeof(b))) {
 			b.showDetails();
-			cout << "\n----------------------------------------------------------------------------------" << '\n';
+			cout << "----------------------------------------------------------------------------------" << '\n';
 		}
 		file.close();
 }
@@ -201,12 +184,12 @@ void showAvailBusses(char from[30], char to[30]) {
 	Bus b;
 	file.open("busses.dat", ios :: app | ios :: in | ios :: binary);
 	cout << "###################################################################################" << '\n';
-	cout << "Bus no." << "\t" << "Route no." << "\t" << "Name" << "\t\t" << "Departure" << "\t" << "Arrival" << "\t\t" << "Price" <<'\n';
+	cout << " Bus no." << "\t" << "Route no." << "\t" << "Name" << "\t\t" << "Departure" << "\t" << "Arrival" << "\t\t" << "Price" <<'\n';
 	cout << "###################################################################################" << '\n' << '\n';
 	while(file.read((char *) &b, sizeof(b))) {
 		if(!strcmp(from, b.from) && !strcmp(to, b.to))
 			b.showDetails();
-		cout << "\n---------------------------------------------------------------------------------" << '\n';
+		cout << "---------------------------------------------------------------------------------" << '\n';
 	}
 	file.close();
 }
@@ -260,30 +243,39 @@ void UserLogin() {
 //Admin Controls
 void adminControl() {
 	int opt;
-	int flag = 0;
-	do {
-		cout << "Choose a correct option: " << '\n';
-		cout << '\t' << "- Add new bus [ 1 ]" << '\n';
-		cout << '\t' << "- Add new route [ 2 ]" << '\n';
-		cout << '\t' << "- Show all routes [ 3 ]" << '\n';
-		cout << '\t' << "- Show all busses [ 4 ]" << '\n';
-		cout << '\t' << "- Exit [ 5 ]" << '\n';
-		cin >> opt;
+	char pwd[10];
+	int flag = 0, flag2 = 0;
+	cout << "Enter admin password to continue : ";
+	cin.ignore();
+	cin.getline(pwd, 10);
+	if(!strcmp(pwd, "iampwd"))
+		flag2 = 1;
+	if(flag2)
+		do {
+			cout << "Choose a correct option: " << '\n';
+			cout << '\t' << "- Add new bus [ 1 ]" << '\n';
+			cout << '\t' << "- Add new route [ 2 ]" << '\n';
+			cout << '\t' << "- Show all routes [ 3 ]" << '\n';
+			cout << '\t' << "- Show all busses [ 4 ]" << '\n';
+			cout << '\t' << "- Exit [ 5 ]" << '\n';
+			cin >> opt;
 
-		refreshScrn();
-		switch(opt) {
-			case 1:	addNewBus();
-							break;
-			case 2:	addNewRoute();
-							break;
-			case 3:	showAllRoutes();
-							break;
-			case 4:	showAllBusses();
-							break;
-			case 5:	flag = 1;
-							break;
-		}
-	}while(!flag);
+			refreshScrn();
+			switch(opt) {
+				case 1:	addNewBus();
+								break;
+				case 2:	addNewRoute();
+								break;
+				case 3:	showAllRoutes();
+								break;
+				case 4:	showAllBusses();
+								break;
+				case 5:	flag = 1;
+								break;
+			}
+		}while(!flag);
+	else
+		cout << "Incorrect password" << endl;
 }
 
 //Client Area
@@ -314,11 +306,12 @@ void clientArea() {
 //Member functions of class Route
 ////////////////////////////////////////////////
 
+//Show details of the route
 void Route :: showDetails() {
-	cout << route_no << "\t\t\t" << from << "\t\t\t" << to << '\n';
+	cout << ' ' << route_no << "\t\t\t" << from << "\t\t\t" << to << '\n';
 }
 
-
+//Get details of the route
 void Route :: getDetails() {
 	fstream file;
 	Route r;
@@ -421,10 +414,10 @@ int Bus :: bookSeats(int n, int sts[6]){
 }
 
 void Bus :: showDetails() {
-	cout << bus_no << "\t" << route_no << "\t\t" << bus_name << "\t\t"; showTime(departure);
+	cout << ' ' << bus_no << "\t" << route_no << "\t\t" << bus_name << "\t\t"; showTime(departure);
 	cout << "\t\t";
 	showTime(arrival);
-	cout << "\t\t" << price;
+	cout << "\t\t" << price << endl;
 }
 
 void Bus :: showAvailSeats() {
@@ -591,7 +584,7 @@ void User :: clientPanel() {
 
 
 int main() {
-	getCurrentDateAndTime();
+	getCurrentTime();
 	int opt;
 	int flag = 0;
 	refreshScrn();
