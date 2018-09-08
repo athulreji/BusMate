@@ -88,15 +88,17 @@ public:
 class Bus {
 	char bus_name[20];
 	int seat[40];
-	Time departure;
-	Time arrival;
 	float price;
 public:
 	char from[30];
 	char to[30];
+	Time departure, arrival;
 	int route_no;
 	int bus_no;
-	Bus();
+	Bus() {
+		for(int i=0; i<40; i++)
+			seat[i] = 0;
+	}
 	void getNewBusNo();
 	void getRouteDetails();
 	void getDetails();
@@ -115,6 +117,11 @@ class User {
 	char pwd[20];
 	int bus_no;
 public:
+	User() {
+		seats_booked = 0;
+		for(int i=0; i<6; i++)
+			seat_nos[i] = 0;
+	}
 	char u_name[20];
 	void getRouteDetails();
 	void getDetails();
@@ -129,6 +136,13 @@ public:
 //Global Functions
 ////////////////////////////////////////////////
 
+//Function to refresh the window
+void refreshScrn() {
+	clrscr();
+	cout << "##################################################################################" << endl;
+	cout << "##############################  BUS BOOKER [v 0.1] ###############################" << endl;
+	cout << "##################################################################################" << endl << endl;
+}
 
 //Function to add new bus
 void addNewBus() {
@@ -202,6 +216,7 @@ void UserSignUp() {
 	User u;
 	fstream file;
 	file.open("Users.dat", ios :: app | ios :: binary);
+	cout << "Enter your details :";
 	u.getSignUpDetails();
 	if(file.write((char *) &u, sizeof(u)))
 		cout << "Your account has been created successfully." << '\n';
@@ -209,24 +224,24 @@ void UserSignUp() {
 }
 
 //Function for User to login
- void UserLogin() {
+void UserLogin() {
 	fstream file;
 	User u;
 	int temp, flag = 0;
 	char u_name[20], pwd[20];
-	cout << "Enter login details : " << '\n';
+	cout << "Enter login Details :" << endl;
 	cout << '\t' << "Username : ";
 	cin.ignore();
 	cin.getline(u_name, 20);
 	cout << '\t' << "Password : ";
 	cin.getline(pwd, 20);
-	file.open("Users.dat", ios :: in | ios :: app | ios :: binary);
+	file.open("Users.dat", ios :: in |	ios :: out | ios :: binary);
 	while(file.read((char *) &u, sizeof(u))) {
 		temp = u.checkLoginDetails(u_name, pwd);
 		if(temp == 1) {
 			cout << "You have logged in successfully." << '\n';
 			u.clientPanel();
-			file.seekg(-1 * sizeof(u), ios :: cur);
+			file.seekp(-1 * sizeof(u), ios::cur);
 			file.write((char *) &u, sizeof(u));
 			flag = 1;
 			break;
@@ -253,8 +268,9 @@ void adminControl() {
 		cout << '\t' << "- Show all routes [ 3 ]" << '\n';
 		cout << '\t' << "- Show all busses [ 4 ]" << '\n';
 		cout << '\t' << "- Exit [ 5 ]" << '\n';
-		cin>>opt;
+		cin >> opt;
 
+		refreshScrn();
 		switch(opt) {
 			case 1:	addNewBus();
 							break;
@@ -281,6 +297,7 @@ void clientArea() {
 		cout << '\t' << "- Exit [ 3 ]" << '\n';
 		cin>>opt;
 
+		refreshScrn();
 		switch(opt) {
 			case 1:	UserLogin();
 							break;
@@ -331,11 +348,6 @@ void Route :: getDetails() {
 /////////////////////////////////////////////////
 //Member functions of class bus
 ////////////////////////////////////////////////
-
-Bus :: Bus() {
-	for(int i=0; i<40; i++)
-		seat[i] = 0;
-}
 
 void Bus :: getNewBusNo() {
 	int no = 1000;
@@ -403,7 +415,7 @@ int Bus :: bookSeats(int n, int sts[6]){
 		return 0;
 	else {
 		for(int i=0; i<n; i++)
-			seat[sts[i]] == 1;
+			seat[sts[i]] = 1;
 		return 1;
 	}
 }
@@ -417,30 +429,32 @@ void Bus :: showDetails() {
 
 void Bus :: showAvailSeats() {
 	int temp=0;
-	cout << "\t\t\t" << "  ----------------------------------------------" << '\n';
+	cout << "\t" << "##########################################################" << '\n';
 	for(int i=1; i<=6; i++) {
-		cout << "\t\t\t";
+		cout << "     ";
 		if(i==2 || i==5)
 			cout << '(';
 		else
 			cout << ' ';
-		cout << '|' << '\t';
-		if(i!=3)
+		if(i!=3)	{
+			cout << '|';
 			for(int j=1; j<=8; j++) {
 				temp ++;
-				cout << "  |";
+				cout << '\t' << '|';
 				if(temp<10)
 					cout << 0;
 				(seat[temp-1]==0)? cout << temp : cout << "❌";
 			}
+		}
 		else
 			cout << '\n';
-		cout << '|';
 		if(i==2 || i==5)
-			cout << ']';
-		cout << '\n';
+			cout <<  '|' << ']';
+		else if(i != 3)
+			cout << '|';
+		cout <<'\n';
 	}
-	cout << "\t\t\t" << "  ----------------------------------------------";
+	cout << "\t" << "##########################################################";
 }
 
 
@@ -453,7 +467,7 @@ void User :: getSignUpDetails() {
 	fstream file;
 	User u;
 	file.open("Users.dat", ios :: in | ios :: app | ios :: binary);
-	cout << "Enter your details : " << '\n';
+	cout << "Enter your details :" << '\n';
 	cout << '\t' << "Name : ";
 	cin.ignore();
 	cin.getline(name, 30);
@@ -487,38 +501,43 @@ int User :: checkLoginDetails(char uname[20], char pass[20]) {
 }
 
 void User :: showTicket() {
-
+	if(seats_booked){
+		cout << "From : " << from << endl;
+		cout << "To : " << to << endl;
+		cout << "Bus No." << bus_no << endl;
+		cout << "Seats Booked : " << seats_booked << endl;
+		cout << "Seat Nos : ";
+		for(int i=0; i<seats_booked; i++)
+			cout << seat_nos[i] << ' ';
+		cout << endl;
+	}
+	else
+		cout << "Sorry, you haven't booked any tickets yet." << endl;
 }
 
 void User :: bookTickets() {
 	char t_from[30], t_to[30];
 	Bus b;
-	int bus_no, flag;
-	Date booking_date;
+	int bus_n, flag;
 	cout << "Enter the details : " << '\n';
 	cout << '\t' << "From : ";
 	cin.ignore();
 	cin.getline(t_from, 30);
 	cout << '\t' << "To : ";
 	cin.getline(t_to, 30);
-	cout << '\t' << "Departing(From ";
-	showDate(curr_date);
-	cout << " to the next 31 days";
-	cout << ") : " << '\n';
-	booking_date = getDate();
 	showAvailBusses(t_from, t_to);
 	fstream file;
-	file.open("busses.dat", ios :: in| ios:: app | ios :: binary);
+	file.open("busses.dat", ios :: in| ios:: out | ios :: binary);
 	do {
 		flag = 1;
 		cout << "Choose a valid Bus no (0 - exit) : ";
-		cin >> bus_no;
-		if(bus_no == 0)
+		cin >> bus_n;
+		if(bus_n == 0)
 			break;
 		file.seekg(0, ios :: beg);
 		while (file.read((char *) &b, sizeof(b))) {
-			if(!strcmp(t_from, b.from) && !strcmp(t_to, b.to) && bus_no == b.bus_no) {
-					int no_of_seats, t_seats[6], conf_booking;
+			if(!strcmp(t_from, b.from) && !strcmp(t_to, b.to) && bus_n == b.bus_no) {
+					int no_of_seats, t_seats[6] = {0,0,0,0,0,0}, conf_booking;
 					b.showAvailSeats();
 					cout << '\n';
 					cout << "Enter the no of seats to buy : ";
@@ -526,22 +545,23 @@ void User :: bookTickets() {
 					cout << "Enter seat no and press Enter..." << '\n';
 					for(int i=0; i<no_of_seats; i++)
 						cin >> t_seats[i];
-					conf_booking = b.bookSeats(no_of_seats, t_seats);
-					if(conf_booking){
+					if(b.bookSeats(no_of_seats, t_seats)) {
 						cout << "Booking successful" << '\n';
-						file.seekp(-1 * sizeof(b), ios :: cur);
-						file.write((char *) &b, sizeof(b));
+						bus_no = bus_n;
 						seats_booked = no_of_seats;
 						strcpy(from, t_from);
 						strcpy(to, t_to);
 						for(int i=0; i<no_of_seats; i++)
 							seat_nos[i] = t_seats[i];
+						file.seekp(-1 * sizeof(b), ios :: cur);
+						file.write((char *) &b, sizeof(b));
 					}
 					flag = 0;
 					break;
 			}
 			cout << "Invalid bus no." << '\n';
 		}
+		cout << endl;
 	} while(flag);
 }
 
@@ -549,6 +569,7 @@ void User :: bookTickets() {
 void User :: clientPanel() {
 	int opt;
 	int flag = 0;
+	refreshScrn();
 	do {
 		cout << "Choose a correct option: " << '\n';
 		cout << '\t' << "- Book Tickets [ 1 ]" << '\n';
@@ -556,6 +577,7 @@ void User :: clientPanel() {
 		cout << '\t' << "- Exit [ 3 ]" << '\n';
 		cin>>opt;
 
+		refreshScrn();
 		switch(opt) {
 			case 1:	bookTickets();
 							break;
@@ -568,17 +590,18 @@ void User :: clientPanel() {
 }
 
 
-
 int main() {
 	getCurrentDateAndTime();
 	int opt;
 	int flag = 0;
+	refreshScrn();
 	do {
 		cout << '\t' << "- Admin Control [ 1 ]" << '\n';
 		cout << '\t' << "- Client Area [ 2 ]" << '\n';
 		cout << '\t' << "- Exit [ 3 ]" << '\n';
 		cin>>opt;
 
+		refreshScrn();
 		switch(opt) {
 			case 1:	adminControl();
 							break;
