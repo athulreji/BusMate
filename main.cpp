@@ -14,8 +14,6 @@ using namespace std;
 #define clear system("cls")
 #endif
 
-void clrscr(){}
-
 struct Time {
 	int hour, min;
 } curr_time;
