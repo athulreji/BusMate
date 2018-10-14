@@ -1,17 +1,16 @@
 #include <iostream>
+#include <stdlib.h>
 #include <fstream>
 #include <time.h>
-#include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 using namespace std;
 
 #ifdef linux
-#define clear system("clear")
+#define clearscr() system("clear")
 #endif
 
 #ifdef _WIN32
-#define clear system("cls")
+#define clearscr() system("cls")
 #endif
 
 struct Time {
@@ -119,7 +118,7 @@ public:
 
 //Function to refresh the window
 void refreshScrn() {
-	clear;
+	clearscr();
 	cout << "##################################################################################" << endl;
 	cout << "##############################  BUS BOOKER [v 0.1] ###############################" << endl;
 	cout << "##################################################################################" << endl << endl;
@@ -420,7 +419,7 @@ void Bus :: showDetails() {
 
 void Bus :: showAvailSeats() {
 	int temp=0;
-	cout << "\t" << "##########################################################" << '\n';
+	cout <<  "\n\n\n";
 	for(int i=1; i<=6; i++) {
 		cout << "     ";
 		if(i==2 || i==5)
@@ -432,11 +431,17 @@ void Bus :: showAvailSeats() {
 			for(int j=1; j<=8; j++) {
 				temp ++;
 				cout << '\t' << '|';
-				if(temp<10)
-					cout << 0;
-				(seat[temp-1]==0)? cout << temp : cout << "❌";
+				if(seat[temp]==0){
+					if(temp<10)
+						cout << 0;
+					cout << temp;
+				}
+				else
+					cout << "❌";
 			}
+			cout << "  ";
 		}
+
 		else
 			cout << '\n';
 		if(i==2 || i==5)
@@ -445,7 +450,7 @@ void Bus :: showAvailSeats() {
 			cout << '|';
 		cout <<'\n';
 	}
-	cout << "\t" << "##########################################################";
+	cout << "\n\n\n";
 }
 
 
