@@ -17,25 +17,6 @@ struct Time {
 	int hour, min;
 } curr_time;
 
-//Function to get corrent date and time
-void getCurrentTime() {
-	time_t tt;
-
-	// Declaring variable to store return value of
-	// localtime()
-	struct tm * ti;
-
-	// Applying time()
-	time (&tt);
-
-	// Using localtime()
-	ti = localtime(&tt);
-
-	curr_time.hour = ti -> tm_hour;
-	curr_time.min = ti -> tm_min;
-
-}
-
 Time getTime() {
 	Time t;
 	cout << '\t' << "Hour : ";
