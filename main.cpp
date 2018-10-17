@@ -7,15 +7,17 @@ using namespace std;
 
 #ifdef linux
 #define clearscr() system("clear")
+#define showPrint() system("gedit ticket_print.txt")
 #endif
 
 #ifdef _WIN32
 #define clearscr() system("cls")
+#define showPrint() system("notepad ticket_print.txt")
 #endif
 
 struct Time {
 	int hour, min;
-} curr_time;
+};
 
 Time getTime() {
 	Time t;
@@ -84,6 +86,7 @@ public:
 			seat_nos[i] = 0;
 	}
 	char u_name[20];
+  void printTicket();
 	void getRouteDetails();
 	void getDetails();
 	void getSignUpDetails();
@@ -492,10 +495,34 @@ void User :: showTicket() {
 		cout << "Sorry, you haven't booked any tickets yet." << endl;
 }
 
+void User :: printTicket() {
+  if(seats_booked){
+    fstream file;
+    file.open("ticket_print.txt", ios :: out);
+    file << "\t\t\t\t\tBUS BOOKER \n\n\n\n";
+    file << "-Ticket Details-----------------------------------------\n\n";
+    file << "Name : " << name << endl <<endl;
+    file << "From : " << from <<endl << endl;
+    file << "To : " << to << endl << endl;
+    file << "Bus no : " << bus_no << endl << endl;
+    file << "Seats Booked : " << seats_booked << endl << endl;
+    file << "Seat Nos : " << endl;
+    for(int i=0; i<seats_booked; i++)
+      file << seat_nos[i] << ' ';
+    file << "\n\n\n\n";
+    file << "\t\t\t\tTHANK YOU FOR BOOKING TICKETS THROUGH BUS BOOKER";
+    file.close();
+    showPrint();
+  }
+	else
+		cout << "Sorry, you haven't booked any tickets yet." << endl;
+}
+
 void User :: bookTickets() {
 	char t_from[30], t_to[30];
 	Bus b;
 	int bus_n, flag;
+  cout << "NOTE : Your previous ticket data will be removed.";
 	cout << "Enter the details : " << '\n';
 	cout << '\t' << "From : ";
 	cin.ignore();
@@ -551,7 +578,8 @@ void User :: clientPanel() {
 		cout << "Choose a correct option: " << '\n';
 		cout << '\t' << "- Book Tickets [ 1 ]" << '\n';
 		cout << '\t' << "- Show my tickets [ 2 ]" << '\n';
-		cout << '\t' << "- Exit [ 3 ]" << '\n';
+		cout << '\t' << "- Print Ticket [ 3 ]" << '\n';
+		cout << '\t' << "- Exit [ 4 ]" << '\n';
 		cin>>opt;
 
 		refreshScrn();
@@ -560,7 +588,9 @@ void User :: clientPanel() {
 							break;
 			case 2:	showTicket();
 							break;
-			case 3:	flag = 1;
+			case 3:	printTicket();
+							break;
+			case 4:	flag = 1;
 							break;
 		}
 	}while(!flag);
@@ -568,7 +598,6 @@ void User :: clientPanel() {
 
 
 int main() {
-	getCurrentTime();
 	int opt;
 	int flag = 0;
 	refreshScrn();
