@@ -1,2 +1,2 @@
 # Bus-Booker
-C++ project to book bus ticket.
+CLI app to book bus tickets
