@@ -27,7 +27,7 @@ Time getTime() {
 	Time t;
 	cout << '\t' << "Hour : ";
 	cin >> t.hour;
-	cout << '\t' << "Minute : ";
+	cout << '\t' << "Minute : ";                         //important comment -gettime
 	cin >> t.min;
 	return t;
 }
@@ -43,7 +43,7 @@ void showTime(Time t) {
 //Route class Defenition
 class Route {
 public:
-	int route_no;
+	int route_no;                                                          //class should have from,to variables getdetails functions must
 	char from[30];
 	char to[30];
 	void getDetails();
@@ -92,7 +92,7 @@ public:
 	char u_name[20];
   void printTicket();
 	void getRouteDetails();
-	void getDetails();
+	void getDetails();                                                     //print ticket
 	void getSignUpDetails();
 	int checkLoginDetails(char *, char *);
 	void clientPanel();
