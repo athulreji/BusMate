@@ -110,7 +110,7 @@ public:
 void refreshScrn() {
 	clearscr();
 	cout << "##################################################################################" << endl;
-	cout << "##############################  BUS BOOKER [v 0.1] ###############################" << endl;
+	cout << "##############################  BusMate [v 0.1] ##################################" << endl;
 	cout << "##################################################################################" << endl << endl;
 }
 
@@ -505,7 +505,7 @@ void User :: printTicket() {
   if(seats_booked){
     fstream file;
     file.open("ticket_print.txt", ios :: out);
-    file << "\t\t\t\t\tBUS BOOKER \n\n\n\n";
+    file << "\t\t\t\t\tBusMate \n\n\n\n";
     file << "-Ticket Details-----------------------------------------\n\n";
     file << "Name : " << name << endl <<endl;
     file << "From : " << from <<endl << endl;
